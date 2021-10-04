@@ -129,4 +129,5 @@ dmypy.json
 .pyre/
 
 .idea/
-excel_dates/version.py/
+
+excel_dates/version.py

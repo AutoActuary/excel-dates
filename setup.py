@@ -26,5 +26,6 @@ setuptools.setup(
     ],
     install_requires=[
         "locate",
+        "openpyxl>=3.0==3.*",
     ],
 )
