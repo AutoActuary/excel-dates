@@ -1,7 +1,7 @@
 import unittest
 import datetime
 
-import excel_dates.excel_date_for_python as excel_dates
+import excel_dates.convert as excel_dates
 
 
 class TestTemp(unittest.TestCase):
