@@ -1,7 +1,5 @@
-from datetime import date, datetime, time
+from datetime import date, datetime, time, timedelta
 from typing import Union
-
-from openpyxl.utils.datetime import from_excel, to_excel
 
 
 epoch = datetime(1899, 12, 30)
@@ -14,6 +12,19 @@ AnyDateType = Union[float, int, date, datetime, time]
 """
 Any Python date or time or datetime object, or an Excel serial date (int) or datetime (float).
 """
+
+
+def get_compensation_from_excel_to_python(value: Union[float, int]) -> int:
+    """
+    Get the compensation in number of days to implement the 1900 leap year bug.
+    """
+    if value < 60:
+        return 1
+
+    if value >= 61:
+        return 0
+
+    raise ValueError("1900/02/29 does not exist in Python")
 
 
 def ensure_python_date(value: AnyDateType) -> date:
@@ -34,19 +45,18 @@ def ensure_python_date(value: AnyDateType) -> date:
     if isinstance(value, (float, int)):
         # The given value is an Excel date or datetime serial number.
         # Convert it, and throw away the time part.
-        return from_excel(value).date()
+        return (
+            epoch + timedelta(days=value + get_compensation_from_excel_to_python(value))
+        ).date()
 
     if isinstance(value, datetime):
-        # The given value is a datetime object.
         # Just throw away the time part.
         return value.date()
 
     if isinstance(value, date):
-        # The given value is already the desired type.
         return value
 
     if isinstance(value, time):
-        # The given value is a time object.
         # Assume Excel's "day zero".
         return epoch.date()
 
@@ -71,20 +81,17 @@ def ensure_python_time(value: AnyDateType) -> time:
     if isinstance(value, (float, int)):
         # The given value is an Excel date or datetime serial number.
         # Convert it, and throw away the date part.
-        return from_excel(value).time()
+        return (epoch + timedelta(days=value)).time()
 
     if isinstance(value, datetime):
-        # The given value is a datetime object.
         # Just throw away the date part.
         return value.time()
 
     if isinstance(value, date):
-        # The given value is a date object.
         # Return midnight.
         return time(0, 0, 0)
 
     if isinstance(value, time):
-        # The given value is already the desired type.
         return value
 
     raise TypeError("Failed to convert value to date.")
@@ -108,10 +115,11 @@ def ensure_python_datetime(value: AnyDateType) -> datetime:
     if isinstance(value, (float, int)):
         # The given value is an Excel date or datetime serial number.
         # Convert it.
-        return from_excel(value)
+        return epoch + timedelta(
+            days=value + get_compensation_from_excel_to_python(value)
+        )
 
     if isinstance(value, datetime):
-        # The given value is already the desired type.
         return value
 
     if isinstance(value, date):
@@ -123,6 +131,19 @@ def ensure_python_datetime(value: AnyDateType) -> datetime:
         return datetime.combine(epoch, value)
 
     raise TypeError("Failed to convert value to datetime.")
+
+
+def get_compensation_from_python_to_excel(value: Union[datetime, date]) -> int:
+    """
+    Get the compensation in number of days to implement the 1900 leap year bug.
+    """
+    if type(value) == date:
+        value = datetime.combine(value, datetime.min.time())
+
+    if value >= datetime(1900, 3, 1):
+        return 0
+
+    return 1
 
 
 def ensure_excel_date(value: AnyDateType) -> int:
@@ -146,17 +167,17 @@ def ensure_excel_date(value: AnyDateType) -> int:
         return int(value)
 
     if isinstance(value, datetime):
-        # The given value is a datetime object.
-        # Throw away the time part and convert to Excel format.
-        return int(to_excel(value.date()))
+        # Get the number of whole days since Excel's day zero.
+        return (value - epoch).days - get_compensation_from_python_to_excel(value)
 
     if isinstance(value, date):
-        # The given value is a date object.
-        # Convert to Excel format.
-        return int(to_excel(value))
+        # Get the number of whole days since Excel's day zero.
+        return (value - epoch.date()).days - get_compensation_from_python_to_excel(
+            value
+        )
 
     if isinstance(value, time):
-        # The given value is a time object. There is no date, so return zero.
+        # There is no date, so return zero.
         return 0
 
 
@@ -179,7 +200,18 @@ def ensure_excel_datetime(value: AnyDateType) -> float:
         # The given value is already an Excel date or datetime serial number.
         return float(value)
 
-    if isinstance(value, (datetime, date, time)):
-        # The given value is a datetime, date or time object.
-        # Convert to Excel format.
-        return float(to_excel(value))
+    if isinstance(value, datetime):
+        # Get the fractional number of days since Excel's day zero.
+        return (
+            value - epoch
+        ).total_seconds() / 86400.0 - get_compensation_from_python_to_excel(value)
+
+    if isinstance(value, date):
+        # Get the fractional number of days since Excel's day zero.
+        return (
+            value - epoch.date()
+        ).total_seconds() / 86400.0 - get_compensation_from_python_to_excel(value)
+
+    if isinstance(value, time):
+        # Get the fraction of the day that has passed since midnight.
+        return (value.hour * 3600 + value.minute * 60 + value.second) / 86400

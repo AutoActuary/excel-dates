@@ -25,7 +25,6 @@ setuptools.setup(
         "setuptools_scm",
     ],
     install_requires=[
-        "locate",
-        "openpyxl>=3.0==3.*",
+        "locate~=1.0",
     ],
 )
