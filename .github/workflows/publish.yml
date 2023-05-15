@@ -1,4 +1,4 @@
-name: Build and upload Python Package to pypi.autoactuary.com
+name: Build and upload Python Package to pypi.org
 
 on:
   release:
@@ -25,9 +25,7 @@ jobs:
 
       - name: Build and publish
         env:
-          TWINE_USERNAME: 'aa'
           TWINE_PASSWORD: ${{ secrets.PYPI_PASSWORD }}
-          TWINE_REPOSITORY_URL: 'https://pypi.autoactuary.com'
         run: |
           pip wheel --no-deps --wheel-dir dist --constraint ci-constraints.txt .
           twine upload dist/*
