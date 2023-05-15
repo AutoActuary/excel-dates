@@ -25,6 +25,7 @@ jobs:
 
       - name: Build and publish
         env:
+          TWINE_USERNAME: ${{ secrets.PUBLIC_PYPI_USERNAME }}
           TWINE_PASSWORD: ${{ secrets.PUBLIC_PYPI_PASSWORD }}
         run: |
           pip wheel --no-deps --wheel-dir dist --constraint ci-constraints.txt .
