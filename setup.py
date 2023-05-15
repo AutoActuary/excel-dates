@@ -24,7 +24,5 @@ setuptools.setup(
     setup_requires=[
         "setuptools_scm",
     ],
-    install_requires=[
-        "locate~=1.0",
-    ],
+    install_requires=[],
 )
