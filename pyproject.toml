@@ -1,0 +1,32 @@
+[build-system]
+requires = ["setuptools", "setuptools_scm"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "excel-dates"
+description="Convert dates between Excel and Python"
+dynamic = ["version"]
+dependencies = [
+]
+authors = [
+    {name = "Bart-Jan Hulsman", email = "hulsmanbj@gmail.com"},
+]
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+]
+requires-python = ">=3.7"
+
+[project.urls]
+repository = "https://github.com/AutoActuary/excel-dates"
+
+[tool.setuptools]
+include-package-data = false
+packages = ["excel_dates"]
+
+[tool.setuptools.package-data]
+"*" = ["py.typed"]
+
+[tool.setuptools_scm]
+write_to = "excel_dates/version.py"
