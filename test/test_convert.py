@@ -10,7 +10,7 @@ from excel_dates import (
 
 
 class TestEnsurePythonDate(unittest.TestCase):
-    def test_1900_leap_year(self):
+    def test_1900_leap_year(self) -> None:
         self.assertEqual(
             datetime.date(1900, 2, 28),
             ensure_python_date(59),
@@ -27,7 +27,7 @@ class TestEnsurePythonDate(unittest.TestCase):
 
 
 class TestEnsurePythonDateTime(unittest.TestCase):
-    def test_1900_leap_year(self):
+    def test_1900_leap_year(self) -> None:
         self.assertEqual(
             datetime.datetime(1900, 2, 28, 21, 36),
             ensure_python_datetime(59.9),
@@ -53,7 +53,7 @@ class TestEnsurePythonDateTime(unittest.TestCase):
 
 
 class TestEnsureExcelDate(unittest.TestCase):
-    def test_1900_leap_year(self):
+    def test_1900_leap_year(self) -> None:
         self.assertEqual(
             59,
             ensure_excel_date(datetime.date(1900, 2, 28)),
@@ -81,7 +81,7 @@ class TestEnsureExcelDate(unittest.TestCase):
 
 
 class TestEnsureExcelDateTime(unittest.TestCase):
-    def test_1900_leap_year(self):
+    def test_1900_leap_year(self) -> None:
         self.assertEqual(
             59.0,
             ensure_excel_datetime(datetime.date(1900, 2, 28)),
